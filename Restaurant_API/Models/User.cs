@@ -21,8 +21,8 @@ namespace Restaurant_API.Models
         public int IduserRole { get; set; }
         public int Idcountry { get; set; }
 
-        public virtual Country IdcountryNavigation { get; set; } = null!;
-        public virtual UserRole IduserRoleNavigation { get; set; } = null!;
+        public virtual Country? IdcountryNavigation { get; set; } = null!;
+        public virtual UserRole? IduserRoleNavigation { get; set; } = null!;
         public virtual ICollection<Invoice> Invoices { get; set; }
         public virtual ICollection<Reservation> Reservations { get; set; }
     }
