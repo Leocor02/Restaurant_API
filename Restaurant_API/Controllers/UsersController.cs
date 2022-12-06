@@ -17,9 +17,13 @@ namespace Restaurant_API.Controllers
     {
         private readonly RestaurantContext _context;
 
+        public Tools.Crypto MyCrypto { get; set; }
+
         public UsersController(RestaurantContext context)
         {
             _context = context;
+
+            MyCrypto = new Tools.Crypto();
         }
 
         // GET: api/Users
@@ -34,6 +38,22 @@ namespace Restaurant_API.Controllers
         public async Task<ActionResult<User>> GetUser(int id)
         {
             var user = await _context.Users.FindAsync(id);
+
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            return user;
+        }
+
+        // GET: api/Users/ValidateLogin?UserName=a&UserPassword=1
+        [HttpGet("ValidateLogin")]
+        public async Task<ActionResult<User>> ValidateLogin(string UserName, string UserPassword)
+        {
+            string ApiLevelEncriptedPassword = MyCrypto.EncriptarEnUnSentido(UserPassword);
+
+            var user = await _context.Users.SingleOrDefaultAsync(e => e.Email == UserName && e.UserPassword == ApiLevelEncriptedPassword);
 
             if (user == null)
             {
@@ -79,6 +99,10 @@ namespace Restaurant_API.Controllers
         [HttpPost]
         public async Task<ActionResult<User>> PostUser(User user)
         {
+            string ApiLevelEncriptedPass = MyCrypto.EncriptarEnUnSentido(user.UserPassword);
+
+            user.UserPassword = ApiLevelEncriptedPass;
+
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
 
