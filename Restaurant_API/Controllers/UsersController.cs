@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Restaurant_API.Models;
+using Restaurant_API.Models.DTO;
 
 namespace Restaurant_API.Controllers
 {
@@ -18,6 +19,84 @@ namespace Restaurant_API.Controllers
         public UsersController(RestaurantContext context)
         {
             _context = context;
+        }
+
+        // GET: api/Users/#
+        [HttpGet("ValidateUserCredentials")]
+        public async Task<ActionResult<User>> ValidateUserCredentials(string email, string password)
+        {
+            string ApiLevelEncriptedPassword = MyCrypto.EncriptarEnUnSentido(UserPassword);
+
+
+
+            var user = await _context.Usuarios.SingleOrDefaultAsync(e => e.Correo == UserName && e.Password == ApiLevelEncriptedPassword);
+
+
+
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+
+
+            return user;
+        }
+
+        // GET: api/Users/GetUserInfo?email=a@gmail.com
+        [HttpGet("GetUserInfo")]
+        public ActionResult<IEnumerable<UserDTO>> GetUserInfo(string email)
+        {
+            //las consultas linq se parece a los normales.
+            var query = (from user in _context.Users
+                         where user.Email == email
+                         select new
+                         {
+                             idUser = user.Iduser,
+                             name = user.Name,
+                             email = user.Email,
+                             userPassword = user.UserPassword,
+                             backupEmail = user.BackUpEmail,
+                             phoneNumber = user.PhoneNumber,
+                             active = user.Active,
+                             idUserRole = user.IduserRole,
+                             idCountry = user.Idcountry
+
+                         }).ToList();
+            List<UserDTO> list = new List<UserDTO>();
+
+
+
+            foreach (var item in query)
+            {
+                UserDTO newItem = new UserDTO();
+
+                newItem.Iduser = item.idUser;
+                newItem.Name = item.name;
+                newItem.Email = item.email;
+                newItem.UserPassword = item.userPassword;
+                newItem.BackUpEmail = item.backupEmail;
+                newItem.PhoneNumber = item.phoneNumber;
+                newItem.Active = item.active;
+                newItem.IduserRole = item.idUserRole;
+                newItem.Idcountry = item.idCountry;
+
+                list.Add(newItem);
+            }
+
+
+
+
+
+
+            if (list == null)
+            {
+                return NotFound();
+            }
+
+
+
+            return list;
         }
 
         // GET: api/Users
