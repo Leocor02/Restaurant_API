@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Restaurant_API.Attributes;
 using Restaurant_API.Models;
 using Restaurant_API.Models.DTO;
 
@@ -12,13 +13,18 @@ namespace Restaurant_API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [ApiKey]
     public class UsersController : ControllerBase
     {
         private readonly RestaurantContext _context;
 
+        public Tools.Crypto MyCrypto { get; set; }
+
         public UsersController(RestaurantContext context)
         {
             _context = context;
+
+            MyCrypto = new Tools.Crypto();
         }
 
         // GET: api/Users/#
@@ -120,6 +126,22 @@ namespace Restaurant_API.Controllers
             return user;
         }
 
+        // GET: api/Users/ValidateLogin?UserName=a&UserPassword=1
+        [HttpGet("ValidateLogin")]
+        public async Task<ActionResult<User>> ValidateLogin(string UserName, string UserPassword)
+        {
+            string ApiLevelEncriptedPassword = MyCrypto.EncriptarEnUnSentido(UserPassword);
+
+            var user = await _context.Users.SingleOrDefaultAsync(e => e.Email == UserName && e.UserPassword == ApiLevelEncriptedPassword);
+
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            return user;
+        }
+
         // PUT: api/Users/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
@@ -156,6 +178,10 @@ namespace Restaurant_API.Controllers
         [HttpPost]
         public async Task<ActionResult<User>> PostUser(User user)
         {
+            string ApiLevelEncriptedPass = MyCrypto.EncriptarEnUnSentido(user.UserPassword);
+
+            user.UserPassword = ApiLevelEncriptedPass;
+
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
 

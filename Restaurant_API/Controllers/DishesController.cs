@@ -5,12 +5,14 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Restaurant_API.Attributes;
 using Restaurant_API.Models;
 
 namespace Restaurant_API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [ApiKey]
     public class DishesController : ControllerBase
     {
         private readonly RestaurantContext _context;
