@@ -27,15 +27,15 @@ namespace Restaurant_API.Controllers
             MyCrypto = new Tools.Crypto();
         }
 
-        // GET: api/Users/#
+        // GET: api/Users/ValidateUserCredentials?email=1%40gmail.com&password=1234
         [HttpGet("ValidateUserCredentials")]
         public async Task<ActionResult<User>> ValidateUserCredentials(string email, string password)
         {
-            string ApiLevelEncriptedPassword = MyCrypto.EncriptarEnUnSentido(UserPassword);
+            string ApiLevelEncriptedPassword = MyCrypto.EncriptarEnUnSentido(password);
 
 
 
-            var user = await _context.Usuarios.SingleOrDefaultAsync(e => e.Correo == UserName && e.Password == ApiLevelEncriptedPassword);
+            var user = await _context.Users.SingleOrDefaultAsync(e => e.Email == email && e.UserPassword == ApiLevelEncriptedPassword);
 
 
 
@@ -117,22 +117,6 @@ namespace Restaurant_API.Controllers
         public async Task<ActionResult<User>> GetUser(int id)
         {
             var user = await _context.Users.FindAsync(id);
-
-            if (user == null)
-            {
-                return NotFound();
-            }
-
-            return user;
-        }
-
-        // GET: api/Users/ValidateLogin?UserName=a&UserPassword=1
-        [HttpGet("ValidateLogin")]
-        public async Task<ActionResult<User>> ValidateLogin(string UserName, string UserPassword)
-        {
-            string ApiLevelEncriptedPassword = MyCrypto.EncriptarEnUnSentido(UserPassword);
-
-            var user = await _context.Users.SingleOrDefaultAsync(e => e.Email == UserName && e.UserPassword == ApiLevelEncriptedPassword);
 
             if (user == null)
             {
