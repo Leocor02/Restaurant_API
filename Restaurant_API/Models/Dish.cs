@@ -10,6 +10,6 @@ namespace Restaurant_API.Models
         public string DishDescription { get; set; } = null!;
         public int Idcountry { get; set; }
 
-        public virtual Country IdcountryNavigation { get; set; } = null!;
+        public virtual Country? IdcountryNavigation { get; set; } = null!;
     }
 }
