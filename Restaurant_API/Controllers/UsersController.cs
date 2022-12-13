@@ -49,6 +49,53 @@ namespace Restaurant_API.Controllers
             return user;
         }
 
+        [HttpGet("GetEmployeeList")]
+        public ActionResult<IEnumerable<UserDTO>> GetEmployeeList()
+        {
+            var query = from user in _context.Users
+                        where user.IduserRole == 3
+                        select new
+                        {
+                            Iduser = user.Iduser,
+                            Name = user.Name,
+                            Email = user.Email,
+                            UserPassword = user.UserPassword,
+                            BackUpEmail = user.BackUpEmail,
+                            PhoneNumber = user.PhoneNumber,
+                            Active = user.Active,
+                            IduserRole = user.IduserRole,
+                            Idcountry = user.Idcountry
+                        };
+
+            List<UserDTO> EmployeesList = new List<UserDTO>();
+
+            foreach (var user in query)
+            {
+                EmployeesList.Add(
+                    new UserDTO
+                    {
+                        Iduser = user.Iduser,
+                        Name = user.Name,
+                        Email = user.Email,
+                        UserPassword = user.UserPassword,
+                        BackUpEmail = user.BackUpEmail,
+                        PhoneNumber = user.PhoneNumber,
+                        Active = user.Active,
+                        IduserRole = user.IduserRole,
+                        Idcountry = user.Idcountry
+                    }
+                    );
+            }
+
+            if (EmployeesList == null)
+            {
+                return NotFound();
+            }
+
+            return EmployeesList;
+
+        }
+
         // GET: api/Users/GetUserInfo?email=a@gmail.com
         [HttpGet("GetUserInfo")]
         public ActionResult<IEnumerable<UserDTO>> GetUserInfo(string email)
