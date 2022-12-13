@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
@@ -7,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Restaurant_API.Attributes;
 using Restaurant_API.Models;
+using Restaurant_API.Models.DTO;
 
 namespace Restaurant_API.Controllers
 {
@@ -20,6 +22,40 @@ namespace Restaurant_API.Controllers
         public TablesController(RestaurantContext context)
         {
             _context = context;
+        }
+
+        [HttpGet("GetTablesList")]
+        public ActionResult<IEnumerable<TableDTO>> GetTablesList()
+        {
+            var query = from table in _context.Tables
+                        select new
+                        {
+                            Idtable = table.Idtable,
+                            Floor = table.Floor,
+                            ChairQuantity = table.ChairQuantity
+                        };
+
+            List<TableDTO> tablesList = new List<TableDTO>();
+
+            foreach (var table in query)
+            {
+                tablesList.Add(
+                    new TableDTO
+                    {
+                        Idtable = table.Idtable,
+                        Floor = table.Floor,
+                        ChairQuantity = table.ChairQuantity
+                    }
+                    );
+            }
+
+            if (tablesList == null)
+            {
+                return NotFound();
+            }
+
+            return tablesList;
+
         }
 
         // GET: api/Tables
