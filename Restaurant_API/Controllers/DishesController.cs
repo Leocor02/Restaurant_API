@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Restaurant_API.Attributes;
 using Restaurant_API.Models;
+using Restaurant_API.Models.DTO;
 
 namespace Restaurant_API.Controllers
 {
@@ -41,6 +42,42 @@ namespace Restaurant_API.Controllers
             }
 
             return dish;
+        }
+
+        [HttpGet("GetDishesList")]
+        public ActionResult<IEnumerable<DishDTO>> GetDishesList()
+        {
+            var query = from dish in _context.Dishes
+                        select new
+                        {
+                            Iddish = dish.Iddish,
+                            ItemPictureUrl = dish.ItemPictureUrl,
+                            DishDescription = dish.DishDescription,
+                            Idcountry = dish.Idcountry
+                        };
+
+            List<DishDTO> DishesList = new List<DishDTO>();
+
+            foreach (var dish in query)
+            {
+                DishesList.Add(
+                    new DishDTO
+                    {
+                        Iddish = dish.Iddish,
+                        ItemPictureUrl = dish.ItemPictureUrl,
+                        DishDescription = dish.DishDescription,
+                        Idcountry = dish.Idcountry
+                    }
+                    );
+            }
+
+            if (DishesList == null)
+            {
+                return NotFound();
+            }
+
+            return DishesList;
+
         }
 
         // PUT: api/Dishes/5
