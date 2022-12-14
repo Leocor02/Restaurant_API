@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Restaurant_API.Attributes;
 using Restaurant_API.Models;
+using Restaurant_API.Models.DTO;
 
 namespace Restaurant_API.Controllers
 {
@@ -27,6 +28,82 @@ namespace Restaurant_API.Controllers
         public async Task<ActionResult<IEnumerable<Reservation>>> GetReservations()
         {
             return await _context.Reservations.ToListAsync();
+        }
+        
+    [HttpGet("GetUserReservationsList/{id}")]
+    public ActionResult<IEnumerable<ReservationDTO>> GetUserReservationsList(int id)
+    {
+            var query = from reservation in _context.Reservations
+                        where reservation.Iduser == id
+                    select new
+                    {
+                        Idreservation = reservation.Idreservation,
+                        Date = reservation.Date,
+                        DinersQuantity = reservation.DinersQuantity,
+                        Iduser = reservation.Iduser,
+                        Idtable = reservation.Idtable
+                    };
+
+        List<ReservationDTO> ReservationsList = new List<ReservationDTO>();
+
+        foreach (var reservation in query)
+        {
+            ReservationsList.Add(
+                new ReservationDTO
+                {
+                    Idreservation = reservation.Idreservation,
+                    Date = reservation.Date,
+                    DinersQuantity = reservation.DinersQuantity,
+                    Iduser = reservation.Iduser,
+                    Idtable = reservation.Idtable
+                }
+                );
+        }
+
+        if (ReservationsList == null)
+        {
+            return NotFound();
+        }
+
+        return ReservationsList;
+
+    }
+    [HttpGet("GetAllReservationsList")]
+        public ActionResult<IEnumerable<ReservationDTO>> GetAllReservationsList()
+        {
+            var query = from reservation in _context.Reservations
+                        select new
+                        {
+                            Idreservation = reservation.Idreservation,
+                            Date = reservation.Date,
+                            DinersQuantity = reservation.DinersQuantity,
+                            Iduser = reservation.Iduser,
+                            Idtable = reservation.Idtable
+                        };
+
+            List<ReservationDTO> ReservationsList = new List<ReservationDTO>();
+
+            foreach (var reservation in query)
+            {
+                ReservationsList.Add(
+                    new ReservationDTO
+                    {
+                        Idreservation = reservation.Idreservation,
+                        Date = reservation.Date,
+                        DinersQuantity = reservation.DinersQuantity,
+                        Iduser = reservation.Iduser,
+                        Idtable = reservation.Idtable
+                    }
+                    );
+            }
+
+            if (ReservationsList == null)
+            {
+                return NotFound();
+            }
+
+            return ReservationsList;
+
         }
 
         // GET: api/Reservations/5

@@ -11,7 +11,7 @@ namespace Restaurant_API.Models
         public int Iduser { get; set; }
         public int Idtable { get; set; }
 
-        public virtual Table IdtableNavigation { get; set; } = null!;
-        public virtual User IduserNavigation { get; set; } = null!;
+        public virtual Table? IdtableNavigation { get; set; } = null!;
+        public virtual User? IduserNavigation { get; set; } = null!;
     }
 }
