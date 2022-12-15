@@ -44,6 +44,49 @@ namespace Restaurant_API.Controllers
             return dish;
         }
 
+        // GET: api/Dishes/GetDishData?idDish=1
+        [HttpGet("GetDishData")]
+        public ActionResult<IEnumerable<DishDTO>> GetUserInfo(int idDish)
+        {
+            //las consultas linq se parecen mucho a las normales que hemos hecho en T-SQL
+            //una de las diferencias es que podemos usar una "tabla temporal" para almacenar
+            //los resultados y luego usarla para llenar los atributos de un modelo o DTO
+
+            var query = (from dish in _context.Dishes
+                         join country in _context.Countries on dish.Idcountry equals country.Idcountry
+                         where dish.Iddish == idDish
+                         select new
+                         {
+                             Iddish = dish.Iddish,
+                             ItemPictureUrl = dish.ItemPictureUrl,
+                             DishDescription = dish.DishDescription,
+                             Idcountry = country.Idcountry,
+                         }).ToList();
+
+            List<DishDTO> list = new List<DishDTO>();
+
+            foreach (var dish in query)
+            {
+                DishDTO NewItem = new DishDTO();
+
+                NewItem.Iddish = dish.Iddish;
+                NewItem.ItemPictureUrl = dish.ItemPictureUrl;
+                NewItem.DishDescription = dish.DishDescription;
+                NewItem.Idcountry = dish.Idcountry;
+
+                list.Add(NewItem);
+
+            }
+
+            if (list == null)
+            {
+                return NotFound();
+            }
+
+            return list;
+
+        }
+
         [HttpGet("GetDishesList")]
         public ActionResult<IEnumerable<DishDTO>> GetDishesList()
         {
