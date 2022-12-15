@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.Metrics;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -47,6 +49,60 @@ namespace Restaurant_API.Controllers
 
 
             return user;
+        }
+
+        // GET: api/Users/GetEmployeeData?idUser=1
+        [HttpGet("GetEmployeeData")]
+        public ActionResult<IEnumerable<UserDTO>> GetUserInfo(int idUser)
+        {
+            //las consultas linq se parecen mucho a las normales que hemos hecho en T-SQL
+            //una de las diferencias es que podemos usar una "tabla temporal" para almacenar
+            //los resultados y luego usarla para llenar los atributos de un modelo o DTO
+
+            var query = (from user in _context.Users
+                         join userRole in _context.UserRoles on user.IduserRole equals userRole.IduserRole
+                         join country in _context.Countries on user.Idcountry equals country.Idcountry
+                         where user.Iduser == idUser
+                         select new
+                         {
+                             Iduser = user.Iduser,
+                             Name = user.Name,
+                             Email = user.Email,
+                             UserPassword = user.UserPassword,
+                             BackUpEmail = user.BackUpEmail,
+                             PhoneNumber = user.PhoneNumber,
+                             Active = user.Active,
+                             IduserRole = userRole.IduserRole,
+                             Idcountry = country.Idcountry
+                         }).ToList();
+
+            List<UserDTO> list = new List<UserDTO>();
+
+            foreach (var user in query)
+            {
+                UserDTO NewItem = new UserDTO();
+
+                NewItem.Iduser = user.Iduser;
+                NewItem.Name = user.Name;
+                NewItem.Email = user.Email;
+                NewItem.UserPassword = user.UserPassword;
+                NewItem.BackUpEmail = user.BackUpEmail;
+                NewItem.PhoneNumber = user.PhoneNumber;
+                NewItem.Active = user.Active;
+                NewItem.IduserRole = user.IduserRole;
+                NewItem.Idcountry = user.Idcountry;
+
+                list.Add(NewItem);
+
+            }
+
+            if (list == null)
+            {
+                return NotFound();
+            }
+
+            return list;
+
         }
 
         [HttpGet("GetEmployeeList")]
